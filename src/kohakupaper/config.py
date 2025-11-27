@@ -8,9 +8,11 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 CACHE_DIR = PROJECT_ROOT / ".cache"
+PAPERLISTS_DIR = PROJECT_ROOT / "paperlists"
 
 # Paper lists source
 PAPERLISTS_REPO = "papercopilot/paperlists"
+PAPERLISTS_GIT_URL = "https://github.com/papercopilot/paperlists.git"
 PAPERLISTS_RAW_URL = "https://raw.githubusercontent.com/papercopilot/paperlists/main"
 PAPERLISTS_API_URL = "https://api.github.com/repos/papercopilot/paperlists/contents"
 
@@ -59,3 +61,4 @@ CONFERENCES = {
 # Ensure directories exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
+# Note: PAPERLISTS_DIR is created on-demand when git clone is triggered

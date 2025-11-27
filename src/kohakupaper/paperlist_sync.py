@@ -5,15 +5,17 @@ Computes rating diffs between first non-empty score and current score
 
 import json
 import subprocess
-import os
 from pathlib import Path
 from typing import Optional
-import shutil
+from urllib.request import urlopen, Request
+from urllib.error import HTTPError, URLError
 
-
-REPO_URL = "https://github.com/papercopilot/paperlists.git"
-PAPERLISTS_DIR = Path(__file__).parent.parent.parent / "paperlists"
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
+from .config import (
+    PAPERLISTS_DIR,
+    PAPERLISTS_GIT_URL,
+    PAPERLISTS_API_URL,
+    DATA_DIR,
+)
 
 
 def get_repo_path() -> Path:
@@ -52,7 +54,7 @@ def clone_or_update_repo() -> bool:
         repo_path.parent.mkdir(parents=True, exist_ok=True)
         try:
             subprocess.run(
-                ["git", "clone", "--depth", "50", REPO_URL, str(repo_path)],
+                ["git", "clone", "--depth", "50", PAPERLISTS_GIT_URL, str(repo_path)],
                 check=True,
                 capture_output=True,
             )
@@ -61,6 +63,66 @@ def clone_or_update_repo() -> bool:
         except subprocess.CalledProcessError as e:
             print(f"Failed to clone repo: {e}")
             return False
+
+
+def _fetch_json(url: str, timeout: int = 30) -> dict | list | None:
+    """Fetch JSON from URL"""
+    try:
+        req = Request(url, headers={"User-Agent": "KohakuPaper/0.4.0"})
+        with urlopen(req, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except (HTTPError, URLError, json.JSONDecodeError) as e:
+        print(f"Error fetching {url}: {e}")
+        return None
+
+
+def list_available_conferences_from_api() -> list[dict]:
+    """
+    List all available conferences and years from GitHub API (no git clone required).
+    This is used for browsing available data before deciding what to sync.
+    """
+    # First, get all directories (conferences) from the repo root
+    data = _fetch_json(PAPERLISTS_API_URL)
+    if not data:
+        return []
+
+    conferences = []
+
+    for item in data:
+        if item.get("type") != "dir":
+            continue
+        conf_name = item.get("name", "")
+        if conf_name.startswith("."):
+            continue
+
+        # Get JSON files in this conference directory
+        conf_url = f"{PAPERLISTS_API_URL}/{conf_name}"
+        conf_data = _fetch_json(conf_url)
+        if not conf_data:
+            continue
+
+        for file_item in conf_data:
+            if file_item.get("type") != "file":
+                continue
+            filename = file_item.get("name", "")
+            if not filename.endswith(".json"):
+                continue
+
+            # Extract year from filename (e.g., iclr2024.json -> 2024)
+            name = filename[:-5]  # Remove .json
+            if len(name) >= 4 and name[-4:].isdigit():
+                year = int(name[-4:])
+                size_bytes = file_item.get("size", 0)
+                conferences.append(
+                    {
+                        "conference": conf_name,
+                        "year": year,
+                        "file": filename,
+                        "size_mb": size_bytes / (1024 * 1024),
+                    }
+                )
+
+    return sorted(conferences, key=lambda x: (x["conference"], x["year"]))
 
 
 def get_file_history(conference: str, year: int, max_commits: int = 50) -> list[dict]:
@@ -110,13 +172,20 @@ def get_file_at_commit(conference: str, year: int, commit_hash: str) -> Optional
         return None
 
 
-def parse_scores(score_str: str) -> list[float]:
-    """Parse score string like '4;4;6;6' into list of floats, sorted high to low"""
+def parse_scores(score_str: str, sort: bool = False) -> list[float]:
+    """Parse score string like '4;4;6;6' into list of floats.
+
+    Args:
+        score_str: Semicolon-separated score string
+        sort: If True, sort high to low (for display). If False, preserve order (for diff calculation)
+    """
     if not score_str:
         return []
     try:
         scores = [float(s.strip()) for s in score_str.split(";") if s.strip()]
-        return sorted(scores, reverse=True)
+        if sort:
+            return sorted(scores, reverse=True)
+        return scores
     except ValueError:
         return []
 
@@ -189,12 +258,18 @@ def compute_paper_diffs(
         current_rating = paper.get("rating", "")
         current_confidence = paper.get("confidence", "")
 
-        current_rating_scores = parse_scores(current_rating)
-        current_confidence_scores = parse_scores(current_confidence)
+        # Parse scores - unsorted for diff calculation (preserve reviewer order)
+        current_rating_scores_raw = parse_scores(current_rating, sort=False)
+        current_confidence_scores_raw = parse_scores(current_confidence, sort=False)
+
+        # Sorted for display
+        current_rating_scores = parse_scores(current_rating, sort=True)
+        current_confidence_scores = parse_scores(current_confidence, sort=True)
 
         diff_info = {
-            "rating_current": current_rating_scores,
-            "confidence_current": current_confidence_scores,
+            # Only set if we have actual scores (not empty arrays)
+            "rating_current": current_rating_scores if current_rating_scores else None,
+            "confidence_current": current_confidence_scores if current_confidence_scores else None,
             "rating_first": None,
             "confidence_first": None,
             "rating_diff": None,
@@ -205,34 +280,54 @@ def compute_paper_diffs(
 
         if paper_id in first_scores:
             first = first_scores[paper_id]
-            first_rating_scores = parse_scores(first["rating"])
-            first_confidence_scores = parse_scores(first["confidence"])
+            # Parse first scores - unsorted for diff calculation
+            first_rating_scores_raw = parse_scores(first["rating"], sort=False)
+            first_confidence_scores_raw = parse_scores(first["confidence"], sort=False)
 
-            diff_info["rating_first"] = first_rating_scores
-            diff_info["confidence_first"] = first_confidence_scores
+            # Sorted for display
+            first_rating_scores = parse_scores(first["rating"], sort=True)
+            first_confidence_scores = parse_scores(first["confidence"], sort=True)
+
             diff_info["first_date"] = first["date"]
 
-            # Compute per-score diff if lengths match
+            # Compute per-score diff if lengths match (using raw unsorted scores)
+            # ONLY set rating_first if we can compute a valid diff (same number of reviewers)
             if (
-                len(current_rating_scores) == len(first_rating_scores)
-                and len(first_rating_scores) > 0
+                len(current_rating_scores_raw) == len(first_rating_scores_raw)
+                and len(first_rating_scores_raw) > 0
             ):
-                rating_diff = [
-                    c - f for c, f in zip(current_rating_scores, first_rating_scores)
+                rating_diff_raw = [
+                    c - f for c, f in zip(current_rating_scores_raw, first_rating_scores_raw)
                 ]
-                if any(d != 0 for d in rating_diff):
+                # Always set rating_first when lengths match (for Init column)
+                diff_info["rating_first"] = first_rating_scores
+
+                if any(d != 0 for d in rating_diff_raw):
+                    # Sort the diffs to match the sorted display order
+                    # Pair current scores with their diffs, sort by current score descending
+                    paired = list(zip(current_rating_scores_raw, rating_diff_raw))
+                    paired.sort(key=lambda x: -x[0])
+                    rating_diff = [d for _, d in paired]
                     diff_info["rating_diff"] = rating_diff
                     diff_info["has_diff"] = True
 
+            # Same for confidence
             if (
-                len(current_confidence_scores) == len(first_confidence_scores)
-                and len(first_confidence_scores) > 0
+                len(current_confidence_scores_raw) == len(first_confidence_scores_raw)
+                and len(first_confidence_scores_raw) > 0
             ):
-                confidence_diff = [
+                confidence_diff_raw = [
                     c - f
-                    for c, f in zip(current_confidence_scores, first_confidence_scores)
+                    for c, f in zip(current_confidence_scores_raw, first_confidence_scores_raw)
                 ]
-                if any(d != 0 for d in confidence_diff):
+                # Always set confidence_first when lengths match
+                diff_info["confidence_first"] = first_confidence_scores
+
+                if any(d != 0 for d in confidence_diff_raw):
+                    # Sort the diffs to match the sorted display order
+                    paired = list(zip(current_confidence_scores_raw, confidence_diff_raw))
+                    paired.sort(key=lambda x: -x[0])
+                    confidence_diff = [d for _, d in paired]
                     diff_info["confidence_diff"] = confidence_diff
 
         diffs[paper_id] = diff_info
@@ -280,11 +375,22 @@ def sync_conference_data(conference: str, year: int) -> Path:
     return output_file
 
 
-def list_available_conferences() -> list[dict]:
-    """List all available conferences and years from the repo"""
+def list_available_conferences(use_api: bool = True) -> list[dict]:
+    """
+    List all available conferences and years.
+
+    Args:
+        use_api: If True (default), fetch from GitHub API without cloning.
+                 If False, read from local cloned repo (requires clone_or_update_repo first).
+    """
+    if use_api:
+        return list_available_conferences_from_api()
+
+    # Fallback to local repo (only if explicitly requested and repo exists)
     repo_path = get_repo_path()
     if not repo_path.exists():
-        clone_or_update_repo()
+        # Don't auto-clone, return empty or use API
+        return list_available_conferences_from_api()
 
     conferences = []
     for conf_dir in repo_path.iterdir():

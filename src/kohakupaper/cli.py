@@ -81,12 +81,24 @@ def main():
 def run_server(host: str, port: int, reload: bool):
     """Start the API server"""
     import uvicorn
+    from .config import PROJECT_ROOT
+
+    # Configure reload to exclude data directories
+    reload_excludes = []
+    if reload:
+        # Exclude paperlists and data directories from file watching
+        reload_excludes = [
+            str(PROJECT_ROOT / "paperlists"),
+            str(PROJECT_ROOT / "data"),
+            str(PROJECT_ROOT / ".cache"),
+        ]
 
     uvicorn.run(
         "kohakupaper.api:app",
         host=host,
         port=port,
         reload=reload,
+        reload_excludes=reload_excludes if reload else None,
     )
 
 
