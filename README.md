@@ -37,8 +37,8 @@ A local paper copilot instance for fast and efficient statistics on AI conferenc
 
 ```bash
 # Clone the repository
-git clone https://github.com/KohakuBlueleaf/KohakuPaperCopilot.git
-cd KohakuPaperCopilot
+git clone https://github.com/KohakuBlueleaf/KohakuPaper.git
+cd KohakuPaper
 
 # Create virtual environment
 python -m venv .venv
@@ -242,8 +242,7 @@ npm run format
 # Run backend tests (if available)
 pytest tests/
 
-# Type checking
-mypy src/kohakupaper
+black .
 ```
 
 ## Data Source
