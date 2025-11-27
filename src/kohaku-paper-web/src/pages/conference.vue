@@ -1,21 +1,21 @@
 <script setup>
-import { useConferenceStore } from '@/stores/conference'
+import { useConferenceStore } from "@/stores/conference";
 import {
   fetchPapers,
   fetchRatingDistribution,
   fetchStatsByStatus,
   fetchStatsByArea,
-} from '@/utils/api'
-import HistogramChart from '@/components/charts/HistogramChart.vue'
-import { InfoFilled } from '@element-plus/icons-vue'
+} from "@/utils/api";
+import HistogramChart from "@/components/charts/HistogramChart.vue";
+import { InfoFilled } from "@element-plus/icons-vue";
 
-const conferenceStore = useConferenceStore()
+const conferenceStore = useConferenceStore();
 
 // Tab state
-const activeTab = ref('charts')
+const activeTab = ref("charts");
 
 // Charts tab state
-const chartType = ref('histogram')
+const chartType = ref("histogram");
 const histogramData = ref({
   bins: [],
   counts: [],
@@ -26,122 +26,127 @@ const histogramData = ref({
   statuses: [],
   total_count: 0,
   status_totals: {},
-})
-const showStacked = ref(true)
-const showCumulative = ref(true)
-const histogramStep = ref(0.1)
-const stepOptions = [0.05, 0.1, 0.2, 0.25, 0.5]
-const chartAreaFilter = ref('')  // Area filter for charts
+});
+const showStacked = ref(true);
+const showCumulative = ref(true);
+const histogramStep = ref(0.1);
+const stepOptions = [0.05, 0.1, 0.2, 0.25, 0.5];
+const chartAreaFilter = ref(""); // Area filter for charts
 
 // Stats for status breakdown
-const statusStats = ref([])
-const areaStats = ref([])
+const statusStats = ref([]);
+const areaStats = ref([]);
 
 // Papers tab state
-const papers = ref([])
-const totalPapers = ref(0)
-const papersLoading = ref(false)
-const searchQuery = ref('')
-const selectedStatus = ref('')
-const selectedArea = ref('')
-const currentPage = ref(1)
-const pageSize = ref(50)
-const pageSizeOptions = [20, 50, 100, 200]
-const sortField = ref('rating_avg')
-const sortOrder = ref('DESC')
+const papers = ref([]);
+const totalPapers = ref(0);
+const papersLoading = ref(false);
+const searchQuery = ref("");
+const selectedStatus = ref("");
+const selectedArea = ref("");
+const currentPage = ref(1);
+const pageSize = ref(50);
+const pageSizeOptions = [20, 50, 100, 200];
+const sortField = ref("rating_avg");
+const sortOrder = ref("DESC");
 
 // Column filters
 const columnFilters = ref({
-  title: '',
-  rating: '',
-  ratingAvg: '',
-  ratingInit: '',
-  ratingDiff: '',
-  confidence: '',
-  confidenceAvg: '',
-  confidenceInit: '',
-  confidenceDiff: '',
-  primaryArea: '',
-  status: '',
-})
+  title: "",
+  rating: "",
+  ratingAvg: "",
+  ratingInit: "",
+  ratingDiff: "",
+  confidence: "",
+  confidenceAvg: "",
+  confidenceInit: "",
+  confidenceDiff: "",
+  primaryArea: "",
+  status: "",
+});
 
 // Chart loading
-const chartLoading = ref(false)
+const chartLoading = ref(false);
 
 // Computed params for API calls
 const queryParams = computed(() => ({
   conference: conferenceStore.selectedConference,
   year: conferenceStore.selectedYear,
-}))
+}));
 
 // Load histogram data
 async function loadHistogram() {
-  if (!conferenceStore.selectedConference) return
+  if (!conferenceStore.selectedConference) return;
 
-  chartLoading.value = true
+  chartLoading.value = true;
   try {
     const params = {
       ...queryParams.value,
       step: histogramStep.value,
-    }
+    };
     if (chartAreaFilter.value) {
-      params.primary_area = chartAreaFilter.value
+      params.primary_area = chartAreaFilter.value;
     }
-    histogramData.value = await fetchRatingDistribution(params)
+    histogramData.value = await fetchRatingDistribution(params);
   } catch (err) {
-    console.error('Failed to load histogram:', err)
+    console.error("Failed to load histogram:", err);
   } finally {
-    chartLoading.value = false
+    chartLoading.value = false;
   }
 }
 
 // Load status stats
 async function loadStatusStats() {
-  if (!conferenceStore.selectedConference) return
+  if (!conferenceStore.selectedConference) return;
 
   try {
-    statusStats.value = await fetchStatsByStatus(queryParams.value)
+    statusStats.value = await fetchStatsByStatus(queryParams.value);
   } catch (err) {
-    console.error('Failed to load status stats:', err)
+    console.error("Failed to load status stats:", err);
   }
 }
 
 // Load area stats
 async function loadAreaStats() {
-  if (!conferenceStore.selectedConference) return
+  if (!conferenceStore.selectedConference) return;
 
   try {
-    areaStats.value = await fetchStatsByArea(queryParams.value)
+    areaStats.value = await fetchStatsByArea(queryParams.value);
   } catch (err) {
-    console.error('Failed to load area stats:', err)
+    console.error("Failed to load area stats:", err);
   }
 }
 
 // Parse numeric filter (e.g., ">=6", "<4.5", "5")
 function parseNumericFilter(filterValue) {
-  const trimmed = (filterValue || '').trim()
-  if (!trimmed) return { min: null, max: null }
+  const trimmed = (filterValue || "").trim();
+  if (!trimmed) return { min: null, max: null };
 
-  const match = trimmed.match(/^(>=|<=|>|<|=)?\s*(\d+\.?\d*)$/)
-  if (!match) return { min: null, max: null }
+  const match = trimmed.match(/^(>=|<=|>|<|=)?\s*(\d+\.?\d*)$/);
+  if (!match) return { min: null, max: null };
 
-  const op = match[1] || '='
-  const val = parseFloat(match[2])
+  const op = match[1] || "=";
+  const val = parseFloat(match[2]);
 
   switch (op) {
-    case '>=': return { min: val, max: null }
-    case '>': return { min: val + 0.01, max: null }
-    case '<=': return { min: null, max: val }
-    case '<': return { min: null, max: val - 0.01 }
-    default: return { min: val - 0.01, max: val + 0.01 }
+    case ">=":
+      return { min: val, max: null };
+    case ">":
+      return { min: val + 0.01, max: null };
+    case "<=":
+      return { min: null, max: val };
+    case "<":
+      return { min: null, max: val - 0.01 };
+    default:
+      return { min: val - 0.01, max: val + 0.01 };
   }
 }
 
 // Load papers
 async function loadPapers() {
-  if (!conferenceStore.selectedConference) return
+  if (!conferenceStore.selectedConference) return;
 
-  papersLoading.value = true
+  papersLoading.value = true;
   try {
     const params = {
       ...queryParams.value,
@@ -149,240 +154,288 @@ async function loadPapers() {
       offset: (currentPage.value - 1) * pageSize.value,
       order_by: sortField.value,
       order_dir: sortOrder.value,
-    }
+    };
 
     if (searchQuery.value) {
-      params.search = searchQuery.value
+      params.search = searchQuery.value;
     }
     if (selectedStatus.value) {
-      params.status = selectedStatus.value
+      params.status = selectedStatus.value;
     }
     if (selectedArea.value) {
-      params.primary_area = selectedArea.value
+      params.primary_area = selectedArea.value;
     }
 
     // Column filters - title filter
     if (columnFilters.value.title) {
-      params.title_filter = columnFilters.value.title
+      params.title_filter = columnFilters.value.title;
     }
 
     // Primary area filter (from column)
     if (columnFilters.value.primaryArea) {
-      params.primary_area = columnFilters.value.primaryArea
+      params.primary_area = columnFilters.value.primaryArea;
     }
 
     // Rating filter - check for "diff" keyword
     if (columnFilters.value.rating) {
-      const ratingFilter = columnFilters.value.rating.toLowerCase().trim()
-      if (ratingFilter === 'diff') {
-        params.has_rating_diff = true
+      const ratingFilter = columnFilters.value.rating.toLowerCase().trim();
+      if (ratingFilter === "diff") {
+        params.has_rating_diff = true;
       }
     }
 
     // Avg rating filter
     if (columnFilters.value.ratingAvg) {
-      const { min, max } = parseNumericFilter(columnFilters.value.ratingAvg)
-      if (min !== null) params.min_rating = min
-      if (max !== null) params.max_rating = max
+      const { min, max } = parseNumericFilter(columnFilters.value.ratingAvg);
+      if (min !== null) params.min_rating = min;
+      if (max !== null) params.max_rating = max;
     }
 
     // Confidence filter - check for "diff" keyword
     if (columnFilters.value.confidence) {
-      const confFilter = columnFilters.value.confidence.toLowerCase().trim()
-      if (confFilter === 'diff') {
-        params.has_confidence_diff = true
+      const confFilter = columnFilters.value.confidence.toLowerCase().trim();
+      if (confFilter === "diff") {
+        params.has_confidence_diff = true;
       }
     }
 
     // Avg confidence filter
     if (columnFilters.value.confidenceAvg) {
-      const { min, max } = parseNumericFilter(columnFilters.value.confidenceAvg)
-      if (min !== null) params.min_confidence = min
-      if (max !== null) params.max_confidence = max
+      const { min, max } = parseNumericFilter(
+        columnFilters.value.confidenceAvg,
+      );
+      if (min !== null) params.min_confidence = min;
+      if (max !== null) params.max_confidence = max;
     }
 
-    const data = await fetchPapers(params)
-    papers.value = data.papers
-    totalPapers.value = data.total
+    // Init rating filter
+    if (columnFilters.value.ratingInit) {
+      const { min, max } = parseNumericFilter(columnFilters.value.ratingInit);
+      if (min !== null) params.min_rating_init = min;
+      if (max !== null) params.max_rating_init = max;
+    }
+
+    // Rating diff filter
+    if (columnFilters.value.ratingDiff) {
+      const { min, max } = parseNumericFilter(columnFilters.value.ratingDiff);
+      if (min !== null) params.min_rating_diff = min;
+      if (max !== null) params.max_rating_diff = max;
+    }
+
+    // Init confidence filter
+    if (columnFilters.value.confidenceInit) {
+      const { min, max } = parseNumericFilter(
+        columnFilters.value.confidenceInit,
+      );
+      if (min !== null) params.min_confidence_init = min;
+      if (max !== null) params.max_confidence_init = max;
+    }
+
+    // Confidence diff filter
+    if (columnFilters.value.confidenceDiff) {
+      const { min, max } = parseNumericFilter(
+        columnFilters.value.confidenceDiff,
+      );
+      if (min !== null) params.min_confidence_diff = min;
+      if (max !== null) params.max_confidence_diff = max;
+    }
+
+    const data = await fetchPapers(params);
+    papers.value = data.papers;
+    totalPapers.value = data.total;
   } catch (err) {
-    console.error('Failed to load papers:', err)
+    console.error("Failed to load papers:", err);
   } finally {
-    papersLoading.value = false
+    papersLoading.value = false;
   }
 }
 
 // Check if any column filters are active
 const hasActiveColumnFilters = computed(() => {
-  return Object.values(columnFilters.value).some((v) => v && v.trim())
-})
+  return Object.values(columnFilters.value).some((v) => v && v.trim());
+});
 
 // Area bar chart data
 const areaCumulativeData = computed(() => {
-  if (areaStats.value.length === 0) return { bins: [], counts: [] }
+  if (areaStats.value.length === 0) return { bins: [], counts: [] };
 
-  const sorted = [...areaStats.value].sort((a, b) => b.paper_count - a.paper_count)
-  const top20 = sorted.slice(0, 20)
+  const sorted = [...areaStats.value].sort(
+    (a, b) => b.paper_count - a.paper_count,
+  );
+  const top20 = sorted.slice(0, 20);
 
   return {
-    bins: top20.map((a) => (a.primary_area || 'Unknown').slice(0, 30)),
+    bins: top20.map((a) => (a.primary_area || "Unknown").slice(0, 30)),
     counts: top20.map((a) => a.paper_count),
-  }
-})
+  };
+});
 
 // Debounce for column filters
-let filterDebounceTimer = null
+let filterDebounceTimer = null;
 
 // Watch column filters and reload with debounce
 watch(
   columnFilters,
   () => {
-    if (filterDebounceTimer) clearTimeout(filterDebounceTimer)
+    if (filterDebounceTimer) clearTimeout(filterDebounceTimer);
     filterDebounceTimer = setTimeout(() => {
-      currentPage.value = 1
-      loadPapers()
-    }, 300)
+      currentPage.value = 1;
+      loadPapers();
+    }, 300);
   },
-  { deep: true }
-)
+  { deep: true },
+);
 
 // Watch for conference/year changes
 watch(
   () => [conferenceStore.selectedConference, conferenceStore.selectedYear],
   () => {
     if (conferenceStore.selectedConference) {
-      loadHistogram()
-      loadStatusStats()
-      loadAreaStats()
-      if (activeTab.value === 'papers') {
-        currentPage.value = 1
-        loadPapers()
+      loadHistogram();
+      loadStatusStats();
+      loadAreaStats();
+      if (activeTab.value === "papers") {
+        currentPage.value = 1;
+        loadPapers();
       }
     }
   },
-  { immediate: true }
-)
+  { immediate: true },
+);
 
 // Watch histogram step and area filter
-watch([histogramStep, chartAreaFilter], loadHistogram)
+watch([histogramStep, chartAreaFilter], loadHistogram);
 
 // Watch tab changes
 watch(activeTab, (tab) => {
-  if (tab === 'papers' && papers.value.length === 0) {
-    loadPapers()
+  if (tab === "papers" && papers.value.length === 0) {
+    loadPapers();
   }
-})
+});
 
 // Watch paper filters
 watch([searchQuery, selectedStatus, selectedArea], () => {
-  currentPage.value = 1
-  loadPapers()
-})
+  currentPage.value = 1;
+  loadPapers();
+});
 
 // Watch page size changes
 watch(pageSize, () => {
-  currentPage.value = 1
-  loadPapers()
-})
+  currentPage.value = 1;
+  loadPapers();
+});
 
 // Pagination handler
 function handlePageChange(page) {
-  currentPage.value = page
-  loadPapers()
+  currentPage.value = page;
+  loadPapers();
 }
 
 // Sort handler
 function handleSort({ prop, order }) {
-  sortField.value = prop
-  sortOrder.value = order === 'ascending' ? 'ASC' : 'DESC'
-  loadPapers()
+  sortField.value = prop;
+  sortOrder.value = order === "ascending" ? "ASC" : "DESC";
+  loadPapers();
 }
 
 // Open paper link
 function openPaper(row) {
   if (row.site) {
-    window.open(row.site, '_blank')
+    window.open(row.site, "_blank");
   }
 }
 
 // Format scores array (already sorted high to low from backend)
 function formatScores(scores) {
-  if (!scores || !Array.isArray(scores) || scores.length === 0) return '-'
-  return scores.map(s => Number.isInteger(s) ? s : s.toFixed(1)).join(', ')
+  if (!scores || !Array.isArray(scores) || scores.length === 0) return "-";
+  return scores.map((s) => (Number.isInteger(s) ? s : s.toFixed(1))).join(", ");
 }
 
 // Check if diff array has any non-zero values
 function hasDiff(diffArr) {
-  if (!diffArr || !Array.isArray(diffArr)) return false
-  return diffArr.some(d => d !== 0)
+  if (!diffArr || !Array.isArray(diffArr)) return false;
+  return diffArr.some((d) => d !== 0);
 }
 
 // Format diff array with +/- signs
 function formatDiff(diffArr) {
-  if (!diffArr || !Array.isArray(diffArr)) return ''
-  return diffArr.map(d => {
-    if (d > 0) return `+${Number.isInteger(d) ? d : d.toFixed(1)}`
-    if (d < 0) return `${Number.isInteger(d) ? d : d.toFixed(1)}`
-    return '0'
-  }).join(', ')
+  if (!diffArr || !Array.isArray(diffArr)) return "";
+  return diffArr
+    .map((d) => {
+      if (d > 0) return `+${Number.isInteger(d) ? d : d.toFixed(1)}`;
+      if (d < 0) return `${Number.isInteger(d) ? d : d.toFixed(1)}`;
+      return "0";
+    })
+    .join(", ");
 }
 
 // Get correlation color class
 function getCorrClass(corr) {
-  if (corr == null) return ''
-  if (corr > 0.5) return 'corr-positive'
-  if (corr < -0.5) return 'corr-negative'
-  return ''
+  if (corr == null) return "";
+  if (corr > 0.5) return "corr-positive";
+  if (corr < -0.5) return "corr-negative";
+  return "";
 }
 
 // Calculate average from array of scores
 function calcAvg(scores) {
-  if (!scores || !Array.isArray(scores) || scores.length === 0) return null
-  const sum = scores.reduce((a, b) => a + b, 0)
-  return sum / scores.length
+  // Handle null, undefined, non-array, or empty array
+  if (!scores || !Array.isArray(scores) || scores.length === 0) return null;
+  // Also check if all values are valid numbers
+  const validScores = scores.filter((s) => typeof s === "number" && !isNaN(s));
+  if (validScores.length === 0) return null;
+  const sum = validScores.reduce((a, b) => a + b, 0);
+  return sum / validScores.length;
 }
 
 // Format average diff (current - init)
 function formatAvgDiff(current, init) {
-  if (current == null || init == null) return '-'
-  const diff = current - init
-  if (Math.abs(diff) < 0.01) return '0'
-  const sign = diff > 0 ? '+' : ''
-  return `${sign}${diff.toFixed(1)}`
+  // Both must be valid numbers
+  if (current == null || init == null || isNaN(current) || isNaN(init))
+    return "-";
+  const diff = current - init;
+  if (Math.abs(diff) < 0.01) return "0";
+  const sign = diff > 0 ? "+" : "";
+  return `${sign}${diff.toFixed(1)}`;
 }
 
 // Get class for avg diff coloring
 function getAvgDiffClass(current, init) {
-  if (current == null || init == null) return ''
-  const diff = current - init
-  if (diff > 0.1) return 'diff-positive'
-  if (diff < -0.1) return 'diff-negative'
-  return ''
+  if (current == null || init == null || isNaN(current) || isNaN(init))
+    return "";
+  const diff = current - init;
+  if (diff > 0.1) return "diff-positive";
+  if (diff < -0.1) return "diff-negative";
+  return "";
 }
 
 // Format rating/confidence values from string: "4;4;6;6" -> "4, 4, 6, 6"
 function formatRatingValues(valueStr) {
-  if (!valueStr) return '-'
-  const values = valueStr.split(';').map((v) => v.trim())
-  return values.join(', ')
+  if (!valueStr) return "-";
+  const values = valueStr.split(";").map((v) => v.trim());
+  return values.join(", ");
 }
 
 // Get status tag type
 function getStatusType(status) {
-  if (!status) return 'info'
-  const s = status.toLowerCase()
-  if (s === 'accept' || s === 'oral' || s === 'spotlight' || s === 'poster') return 'success'
-  if (s === 'reject') return 'danger'
-  if (s === 'withdraw' || s === 'withdrawn') return 'warning'
-  if (s === 'active') return 'primary'
-  return 'info'
+  if (!status) return "info";
+  const s = status.toLowerCase();
+  if (s === "accept" || s === "oral" || s === "spotlight" || s === "poster")
+    return "success";
+  if (s === "reject") return "danger";
+  if (s === "withdraw" || s === "withdrawn") return "warning";
+  if (s === "active") return "primary";
+  return "info";
 }
-
 </script>
 
 <template>
   <div class="conference-page">
     <div class="page-header">
-      <h1>{{ conferenceStore.selectedConferenceName }} {{ conferenceStore.selectedYear }}</h1>
+      <h1>
+        {{ conferenceStore.selectedConferenceName }}
+        {{ conferenceStore.selectedYear }}
+      </h1>
     </div>
 
     <el-tabs v-model="activeTab" class="main-tabs">
@@ -390,7 +443,9 @@ function getStatusType(status) {
       <el-tab-pane label="Charts" name="charts">
         <div class="charts-controls">
           <el-radio-group v-model="chartType" size="default">
-            <el-radio-button value="histogram">Rating Distribution</el-radio-button>
+            <el-radio-button value="histogram"
+              >Rating Distribution</el-radio-button
+            >
             <el-radio-button value="areas">Top Areas</el-radio-button>
           </el-radio-group>
 
@@ -464,10 +519,12 @@ function getStatusType(status) {
             >
               <div class="status-name">
                 <el-tag :type="getStatusType(stat.status)" size="small">
-                  {{ stat.status || 'Unknown' }}
+                  {{ stat.status || "Unknown" }}
                 </el-tag>
               </div>
-              <div class="status-count">{{ stat.paper_count?.toLocaleString() }} papers</div>
+              <div class="status-count">
+                {{ stat.paper_count?.toLocaleString() }} papers
+              </div>
               <div class="status-rating" v-if="stat.avg_rating">
                 Avg: {{ stat.avg_rating.toFixed(2) }}
               </div>
@@ -520,10 +577,7 @@ function getStatusType(status) {
             />
           </el-select>
 
-          <el-select
-            v-model="pageSize"
-            class="page-size-select"
-          >
+          <el-select v-model="pageSize" class="page-size-select">
             <el-option
               v-for="size in pageSizeOptions"
               :key="size"
@@ -565,7 +619,11 @@ function getStatusType(status) {
               </div>
             </template>
             <template #default="{ row }">
-              <el-tooltip :content="row.title" placement="top-start" :show-after="500">
+              <el-tooltip
+                :content="row.title"
+                placement="top-start"
+                :show-after="500"
+              >
                 <div class="title-cell">{{ row.title }}</div>
               </el-tooltip>
             </template>
@@ -587,7 +645,11 @@ function getStatusType(status) {
               </div>
             </template>
             <template #default="{ row }">
-              <el-tooltip v-if="row.primary_area" :content="row.primary_area" placement="top-start">
+              <el-tooltip
+                v-if="row.primary_area"
+                :content="row.primary_area"
+                placement="top-start"
+              >
                 <el-icon class="area-icon"><InfoFilled /></el-icon>
               </el-tooltip>
               <span v-else>-</span>
@@ -595,7 +657,12 @@ function getStatusType(status) {
           </el-table-column>
 
           <!-- Status -->
-          <el-table-column prop="status" label="Status" width="85" sortable="custom">
+          <el-table-column
+            prop="status"
+            label="Status"
+            width="85"
+            sortable="custom"
+          >
             <template #header>
               <div class="column-header">
                 <span>Status</span>
@@ -633,7 +700,9 @@ function getStatusType(status) {
             </template>
             <template #default="{ row }">
               <div class="score-cell">
-                <span class="score-current">{{ formatScores(row._diff?.rating_current) }}</span>
+                <span class="score-current">{{
+                  formatScores(row._diff?.rating_current)
+                }}</span>
                 <span v-if="hasDiff(row._diff?.rating_diff)" class="score-diff">
                   ({{ formatDiff(row._diff?.rating_diff) }})
                 </span>
@@ -642,7 +711,12 @@ function getStatusType(status) {
           </el-table-column>
 
           <!-- Avg Rating -->
-          <el-table-column prop="rating_avg" label="Avg" width="80" sortable="custom">
+          <el-table-column
+            prop="rating_avg"
+            label="Avg"
+            width="80"
+            sortable="custom"
+          >
             <template #header>
               <div class="column-header">
                 <span>Avg</span>
@@ -657,12 +731,17 @@ function getStatusType(status) {
               </div>
             </template>
             <template #default="{ row }">
-              {{ row.rating_avg?.toFixed(2) ?? '-' }}
+              {{ row.rating_avg?.toFixed(2) ?? "-" }}
             </template>
           </el-table-column>
 
           <!-- Init Avg Rating -->
-          <el-table-column label="Init" width="80">
+          <el-table-column
+            prop="rating_init"
+            label="Init"
+            width="80"
+            sortable="custom"
+          >
             <template #header>
               <div class="column-header">
                 <span>Init</span>
@@ -677,12 +756,17 @@ function getStatusType(status) {
               </div>
             </template>
             <template #default="{ row }">
-              {{ calcAvg(row._diff?.rating_first)?.toFixed(2) ?? '-' }}
+              {{ calcAvg(row._diff?.rating_first)?.toFixed(2) ?? "-" }}
             </template>
           </el-table-column>
 
           <!-- Avg Diff Rating -->
-          <el-table-column label="Diff" width="80">
+          <el-table-column
+            prop="rating_diff"
+            label="Diff"
+            width="80"
+            sortable="custom"
+          >
             <template #header>
               <div class="column-header">
                 <span>Diff</span>
@@ -697,8 +781,20 @@ function getStatusType(status) {
               </div>
             </template>
             <template #default="{ row }">
-              <span :class="getAvgDiffClass(row.rating_avg, calcAvg(row._diff?.rating_first))">
-                {{ formatAvgDiff(row.rating_avg, calcAvg(row._diff?.rating_first)) }}
+              <span
+                :class="
+                  getAvgDiffClass(
+                    row.rating_avg,
+                    calcAvg(row._diff?.rating_first),
+                  )
+                "
+              >
+                {{
+                  formatAvgDiff(
+                    row.rating_avg,
+                    calcAvg(row._diff?.rating_first),
+                  )
+                }}
               </span>
             </template>
           </el-table-column>
@@ -720,8 +816,13 @@ function getStatusType(status) {
             </template>
             <template #default="{ row }">
               <div class="score-cell">
-                <span class="score-current">{{ formatScores(row._diff?.confidence_current) }}</span>
-                <span v-if="hasDiff(row._diff?.confidence_diff)" class="score-diff">
+                <span class="score-current">{{
+                  formatScores(row._diff?.confidence_current)
+                }}</span>
+                <span
+                  v-if="hasDiff(row._diff?.confidence_diff)"
+                  class="score-diff"
+                >
                   ({{ formatDiff(row._diff?.confidence_diff) }})
                 </span>
               </div>
@@ -729,7 +830,12 @@ function getStatusType(status) {
           </el-table-column>
 
           <!-- Avg Confidence -->
-          <el-table-column prop="confidence_avg" label="Avg" width="80" sortable="custom">
+          <el-table-column
+            prop="confidence_avg"
+            label="Avg"
+            width="80"
+            sortable="custom"
+          >
             <template #header>
               <div class="column-header">
                 <span>Avg</span>
@@ -744,12 +850,17 @@ function getStatusType(status) {
               </div>
             </template>
             <template #default="{ row }">
-              {{ row.confidence_avg?.toFixed(2) ?? '-' }}
+              {{ row.confidence_avg?.toFixed(2) ?? "-" }}
             </template>
           </el-table-column>
 
           <!-- Init Avg Confidence -->
-          <el-table-column label="Init" width="80">
+          <el-table-column
+            prop="confidence_init"
+            label="Init"
+            width="80"
+            sortable="custom"
+          >
             <template #header>
               <div class="column-header">
                 <span>Init</span>
@@ -764,12 +875,17 @@ function getStatusType(status) {
               </div>
             </template>
             <template #default="{ row }">
-              {{ calcAvg(row._diff?.confidence_first)?.toFixed(2) ?? '-' }}
+              {{ calcAvg(row._diff?.confidence_first)?.toFixed(2) ?? "-" }}
             </template>
           </el-table-column>
 
           <!-- Avg Diff Confidence -->
-          <el-table-column label="Diff" width="80">
+          <el-table-column
+            prop="confidence_diff"
+            label="Diff"
+            width="80"
+            sortable="custom"
+          >
             <template #header>
               <div class="column-header">
                 <span>Diff</span>
@@ -784,17 +900,34 @@ function getStatusType(status) {
               </div>
             </template>
             <template #default="{ row }">
-              <span :class="getAvgDiffClass(row.confidence_avg, calcAvg(row._diff?.confidence_first))">
-                {{ formatAvgDiff(row.confidence_avg, calcAvg(row._diff?.confidence_first)) }}
+              <span
+                :class="
+                  getAvgDiffClass(
+                    row.confidence_avg,
+                    calcAvg(row._diff?.confidence_first),
+                  )
+                "
+              >
+                {{
+                  formatAvgDiff(
+                    row.confidence_avg,
+                    calcAvg(row._diff?.confidence_first),
+                  )
+                }}
               </span>
             </template>
           </el-table-column>
 
           <!-- Correlation -->
-          <el-table-column prop="corr_rating_confidence" label="Corr" width="80" sortable="custom">
+          <el-table-column
+            prop="corr_rating_confidence"
+            label="Corr"
+            width="80"
+            sortable="custom"
+          >
             <template #default="{ row }">
               <span :class="getCorrClass(row.corr_rating_confidence)">
-                {{ row.corr_rating_confidence?.toFixed(2) ?? '-' }}
+                {{ row.corr_rating_confidence?.toFixed(2) ?? "-" }}
               </span>
             </template>
           </el-table-column>

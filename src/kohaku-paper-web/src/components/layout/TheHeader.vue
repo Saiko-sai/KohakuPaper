@@ -1,14 +1,14 @@
 <script setup>
-import { useConferenceStore } from '@/stores/conference'
+import { useConferenceStore } from "@/stores/conference";
 
-const conferenceStore = useConferenceStore()
+const conferenceStore = useConferenceStore();
 
 function onConferenceChange(conf) {
-  conferenceStore.selectConference(conf)
+  conferenceStore.selectConference(conf);
 }
 
 function onYearChange(year) {
-  conferenceStore.selectYear(year)
+  conferenceStore.selectYear(year);
 }
 </script>
 

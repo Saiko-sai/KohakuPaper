@@ -2,12 +2,12 @@
  * API client for KohakuPaper backend
  */
 
-import axios from 'axios'
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: "/api",
   timeout: 30000,
-})
+});
 
 /**
  * @typedef {Object} Paper
@@ -36,8 +36,8 @@ const api = axios.create({
  * @returns {Promise<PapersResponse>}
  */
 export async function fetchPapers(params = {}) {
-  const { data } = await api.get('/papers', { params })
-  return data
+  const { data } = await api.get("/papers", { params });
+  return data;
 }
 
 /**
@@ -46,8 +46,8 @@ export async function fetchPapers(params = {}) {
  * @returns {Promise<Object>}
  */
 export async function fetchFilters(params = {}) {
-  const { data } = await api.get('/papers/filters', { params })
-  return data
+  const { data } = await api.get("/papers/filters", { params });
+  return data;
 }
 
 /**
@@ -56,8 +56,8 @@ export async function fetchFilters(params = {}) {
  * @returns {Promise<Object>}
  */
 export async function fetchSummary(params = {}) {
-  const { data } = await api.get('/statistics/summary', { params })
-  return data
+  const { data } = await api.get("/statistics/summary", { params });
+  return data;
 }
 
 /**
@@ -66,8 +66,8 @@ export async function fetchSummary(params = {}) {
  * @returns {Promise<Array>}
  */
 export async function fetchStatsByStatus(params = {}) {
-  const { data } = await api.get('/statistics/by-status', { params })
-  return data
+  const { data } = await api.get("/statistics/by-status", { params });
+  return data;
 }
 
 /**
@@ -76,8 +76,8 @@ export async function fetchStatsByStatus(params = {}) {
  * @returns {Promise<Array>}
  */
 export async function fetchStatsByArea(params = {}) {
-  const { data } = await api.get('/statistics/by-area', { params })
-  return data
+  const { data } = await api.get("/statistics/by-area", { params });
+  return data;
 }
 
 /**
@@ -86,8 +86,8 @@ export async function fetchStatsByArea(params = {}) {
  * @returns {Promise<Object>}
  */
 export async function fetchRatingDistribution(params = {}) {
-  const { data } = await api.get('/statistics/rating-distribution', { params })
-  return data
+  const { data } = await api.get("/statistics/rating-distribution", { params });
+  return data;
 }
 
 /**
@@ -96,8 +96,8 @@ export async function fetchRatingDistribution(params = {}) {
  * @returns {Promise<Array>}
  */
 export async function fetchYearlyStats(params = {}) {
-  const { data } = await api.get('/statistics/yearly', { params })
-  return data
+  const { data } = await api.get("/statistics/yearly", { params });
+  return data;
 }
 
 /**
@@ -106,8 +106,8 @@ export async function fetchYearlyStats(params = {}) {
  * @returns {Promise<Array>}
  */
 export async function fetchTopAreas(params = {}) {
-  const { data } = await api.get('/statistics/top-areas', { params })
-  return data
+  const { data } = await api.get("/statistics/top-areas", { params });
+  return data;
 }
 
 /**
@@ -115,8 +115,8 @@ export async function fetchTopAreas(params = {}) {
  * @returns {Promise<Object>}
  */
 export async function fetchConferences() {
-  const { data } = await api.get('/data/conferences')
-  return data
+  const { data } = await api.get("/data/conferences");
+  return data;
 }
 
 /**
@@ -124,8 +124,8 @@ export async function fetchConferences() {
  * @returns {Promise<Object>}
  */
 export async function fetchLocalFiles() {
-  const { data } = await api.get('/data/local-files')
-  return data
+  const { data } = await api.get("/data/local-files");
+  return data;
 }
 
 /**
@@ -135,9 +135,11 @@ export async function fetchLocalFiles() {
  * @returns {Promise<Object>}
  */
 export async function downloadConference(conference, year = null) {
-  const params = year ? { year } : {}
-  const { data } = await api.post(`/data/download/${conference}`, null, { params })
-  return data
+  const params = year ? { year } : {};
+  const { data } = await api.post(`/data/download/${conference}`, null, {
+    params,
+  });
+  return data;
 }
 
 // ============ Sync API ============
@@ -147,8 +149,8 @@ export async function downloadConference(conference, year = null) {
  * @returns {Promise<{conferences: Array, local_count: number}>}
  */
 export async function fetchAvailableConferences() {
-  const { data } = await api.get('/sync/available')
-  return data
+  const { data } = await api.get("/sync/available");
+  return data;
 }
 
 /**
@@ -156,8 +158,8 @@ export async function fetchAvailableConferences() {
  * @returns {Promise<Array>}
  */
 export async function fetchLocalConferences() {
-  const { data } = await api.get('/sync/local')
-  return data
+  const { data } = await api.get("/sync/local");
+  return data;
 }
 
 /**
@@ -165,8 +167,8 @@ export async function fetchLocalConferences() {
  * @returns {Promise<Object>}
  */
 export async function fetchSyncStatus() {
-  const { data } = await api.get('/sync/status')
-  return data
+  const { data } = await api.get("/sync/status");
+  return data;
 }
 
 /**
@@ -174,8 +176,8 @@ export async function fetchSyncStatus() {
  * @returns {Promise<{success: boolean}>}
  */
 export async function updateRepo() {
-  const { data } = await api.post('/sync/update-repo')
-  return data
+  const { data } = await api.post("/sync/update-repo");
+  return data;
 }
 
 /**
@@ -185,11 +187,11 @@ export async function updateRepo() {
  * @returns {Promise<{success: boolean, message: string}>}
  */
 export async function syncConference(conference, year) {
-  const { data } = await api.post('/sync/conference', null, {
+  const { data } = await api.post("/sync/conference", null, {
     params: { conference, year },
     timeout: 300000, // 5 minutes for large conferences
-  })
-  return data
+  });
+  return data;
 }
 
-export default api
+export default api;

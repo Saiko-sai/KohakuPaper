@@ -1,5 +1,5 @@
 <script setup>
-import Plotly from 'plotly.js-dist-min'
+import Plotly from "plotly.js-dist-min";
 
 const props = defineProps({
   bins: { type: Array, required: true },
@@ -11,122 +11,128 @@ const props = defineProps({
   statuses: { type: Array, default: () => [] },
   totalCount: { type: Number, default: 0 },
   statusTotals: { type: Object, default: () => ({}) },
-  title: { type: String, default: 'Rating Distribution' },
-  xLabel: { type: String, default: 'Rating' },
-  yLabel: { type: String, default: 'Count' },
+  title: { type: String, default: "Rating Distribution" },
+  xLabel: { type: String, default: "Rating" },
+  yLabel: { type: String, default: "Count" },
   showLegend: { type: Boolean, default: true },
   stacked: { type: Boolean, default: false },
   showCumulative: { type: Boolean, default: false },
-})
+});
 
-const chartRef = ref(null)
+const chartRef = ref(null);
 
 // Color palette for dynamic assignment
 const colorPalette = [
-  '#409eff', // blue
-  '#e6a23c', // orange
-  '#67c23a', // green
-  '#f56c6c', // red
-  '#909399', // gray
-  '#9c27b0', // purple
-  '#00bcd4', // cyan
-  '#ff9800', // amber
-  '#795548', // brown
-  '#607d8b', // blue-gray
-]
+  "#409eff", // blue
+  "#e6a23c", // orange
+  "#67c23a", // green
+  "#f56c6c", // red
+  "#909399", // gray
+  "#9c27b0", // purple
+  "#00bcd4", // cyan
+  "#ff9800", // amber
+  "#795548", // brown
+  "#607d8b", // blue-gray
+];
 
-const getColorByIndex = (index) => colorPalette[index % colorPalette.length]
+const getColorByIndex = (index) => colorPalette[index % colorPalette.length];
 
 // Build hover text for a bin
 // Bins are [start, end) - left inclusive, right exclusive
 function buildHoverText(binIndex, status, count, cumCount, total) {
-  const binStart = props.binEdges[binIndex]?.toFixed(2) || '?'
-  const binEnd = props.binEdges[binIndex + 1]?.toFixed(2) || '?'
-  const pct = total > 0 ? ((cumCount / total) * 100).toFixed(2) : '0.00'
-  return `${status}<br>Rating: [${binStart}, ${binEnd})<br>Count: ${count}<br>Cumulative: ${cumCount} (${pct}%)`
+  const binStart = props.binEdges[binIndex]?.toFixed(2) || "?";
+  const binEnd = props.binEdges[binIndex + 1]?.toFixed(2) || "?";
+  const pct = total > 0 ? ((cumCount / total) * 100).toFixed(2) : "0.00";
+  return `${status}<br>Rating: [${binStart}, ${binEnd})<br>Count: ${count}<br>Cumulative: ${cumCount} (${pct}%)`;
 }
 
 // Build cumulative hover text with top k% for all statuses
 // Cumulative is count of papers with rating < bin_edges[i+1]
 function buildCumulativeHoverText(binIndex) {
-  const binEnd = props.binEdges[binIndex + 1]?.toFixed(2) || '?'
+  const binEnd = props.binEdges[binIndex + 1]?.toFixed(2) || "?";
 
-  let text = `<b>Rating < ${binEnd}</b><br>`
+  let text = `<b>Rating < ${binEnd}</b><br>`;
 
   // Total
-  const totalCum = props.cumulativeCounts[binIndex] || 0
-  const totalPct = props.totalCount > 0 ? ((totalCum / props.totalCount) * 100).toFixed(2) : '0.00'
-  text += `<b>All:</b> ${totalCum} (${totalPct}%)<br>`
+  const totalCum = props.cumulativeCounts[binIndex] || 0;
+  const totalPct =
+    props.totalCount > 0
+      ? ((totalCum / props.totalCount) * 100).toFixed(2)
+      : "0.00";
+  text += `<b>All:</b> ${totalCum} (${totalPct}%)<br>`;
 
   // Per status
-  const orderedStatuses = props.statuses.length > 0 ? props.statuses : Object.keys(props.cumulativeByStatus)
+  const orderedStatuses =
+    props.statuses.length > 0
+      ? props.statuses
+      : Object.keys(props.cumulativeByStatus);
   for (const status of orderedStatuses) {
     if (props.cumulativeByStatus[status]) {
-      const cumCount = props.cumulativeByStatus[status][binIndex] || 0
-      const statusTotal = props.statusTotals[status] || 0
-      const pct = statusTotal > 0 ? ((cumCount / statusTotal) * 100).toFixed(2) : '0.00'
-      text += `${status}: ${cumCount}/${statusTotal} (${pct}%)<br>`
+      const cumCount = props.cumulativeByStatus[status][binIndex] || 0;
+      const statusTotal = props.statusTotals[status] || 0;
+      const pct =
+        statusTotal > 0 ? ((cumCount / statusTotal) * 100).toFixed(2) : "0.00";
+      text += `${status}: ${cumCount}/${statusTotal} (${pct}%)<br>`;
     }
   }
 
-  return text
+  return text;
 }
 
 const plotData = computed(() => {
-  const orderedStatuses = props.statuses.length > 0
-    ? props.statuses
-    : Object.keys(props.byStatus)
+  const orderedStatuses =
+    props.statuses.length > 0 ? props.statuses : Object.keys(props.byStatus);
 
-  const traces = []
+  const traces = [];
 
   // Stacked bar chart by status
   if (props.stacked && Object.keys(props.byStatus).length > 0) {
     orderedStatuses.forEach((status, index) => {
       if (props.byStatus[status]) {
         const hoverTexts = props.byStatus[status].map((count, i) => {
-          const cumCount = props.cumulativeByStatus[status]?.[i] || 0
-          const statusTotal = props.statusTotals[status] || 0
-          return buildHoverText(i, status, count, cumCount, statusTotal)
-        })
+          const cumCount = props.cumulativeByStatus[status]?.[i] || 0;
+          const statusTotal = props.statusTotals[status] || 0;
+          return buildHoverText(i, status, count, cumCount, statusTotal);
+        });
 
         traces.push({
           x: props.bins,
           y: props.byStatus[status],
-          type: 'bar',
+          type: "bar",
           name: status,
           marker: { color: getColorByIndex(index) },
           hovertext: hoverTexts,
-          hoverinfo: 'text',
-        })
+          hoverinfo: "text",
+        });
       }
-    })
+    });
   } else {
     // Simple histogram
     traces.push({
       x: props.bins,
       y: props.counts,
-      type: 'bar',
-      name: 'Papers',
-      marker: { color: '#409eff' },
-    })
+      type: "bar",
+      name: "Papers",
+      marker: { color: "#409eff" },
+    });
   }
 
   // Add cumulative line on secondary y-axis
   if (props.showCumulative && props.cumulativeCounts.length > 0) {
-    const hoverTexts = props.bins.map((_, i) => buildCumulativeHoverText(i))
+    const hoverTexts = props.bins.map((_, i) => buildCumulativeHoverText(i));
 
     traces.push({
       x: props.bins,
       y: props.cumulativeCounts,
-      type: 'scatter',
-      mode: 'lines+markers',
-      name: 'Cumulative (All)',
-      line: { color: '#303133', width: 3 },
+      type: "scatter",
+      mode: "lines+markers",
+      name: "Cumulative (All)",
+      line: { color: "#303133", width: 3 },
       marker: { size: 6 },
-      yaxis: 'y2',
+      yaxis: "y2",
       hovertext: hoverTexts,
-      hoverinfo: 'text',
-    })
+      hoverinfo: "text",
+    });
 
     // Add cumulative lines per status
     orderedStatuses.forEach((status, index) => {
@@ -134,69 +140,69 @@ const plotData = computed(() => {
         traces.push({
           x: props.bins,
           y: props.cumulativeByStatus[status],
-          type: 'scatter',
-          mode: 'lines',
+          type: "scatter",
+          mode: "lines",
           name: `Cum. ${status}`,
-          line: { color: getColorByIndex(index), width: 2, dash: 'dot' },
-          yaxis: 'y2',
-          hoverinfo: 'skip',
-        })
+          line: { color: getColorByIndex(index), width: 2, dash: "dot" },
+          yaxis: "y2",
+          hoverinfo: "skip",
+        });
       }
-    })
+    });
   }
 
-  return traces
-})
+  return traces;
+});
 
 const layout = computed(() => {
   const baseLayout = {
     title: props.title,
     xaxis: {
       title: props.xLabel,
-      gridcolor: '#e4e7ed',
+      gridcolor: "#e4e7ed",
     },
     yaxis: {
       title: props.yLabel,
-      gridcolor: '#e4e7ed',
+      gridcolor: "#e4e7ed",
     },
-    barmode: props.stacked ? 'stack' : 'group',
+    barmode: props.stacked ? "stack" : "group",
     showlegend: props.showLegend,
     legend: {
-      orientation: 'h',
+      orientation: "h",
       y: -0.15,
       x: 0.5,
-      xanchor: 'center',
+      xanchor: "center",
     },
     margin: { t: 50, r: props.showCumulative ? 80 : 30, b: 100, l: 60 },
-    paper_bgcolor: 'transparent',
-    plot_bgcolor: 'transparent',
-    font: { family: 'inherit' },
-    hovermode: 'x unified',
-  }
+    paper_bgcolor: "transparent",
+    plot_bgcolor: "transparent",
+    font: { family: "inherit" },
+    hovermode: "x unified",
+  };
 
   // Add secondary y-axis for cumulative
   if (props.showCumulative) {
     baseLayout.yaxis2 = {
-      title: 'Cumulative Count',
-      overlaying: 'y',
-      side: 'right',
-      gridcolor: 'rgba(0,0,0,0.1)',
+      title: "Cumulative Count",
+      overlaying: "y",
+      side: "right",
+      gridcolor: "rgba(0,0,0,0.1)",
       showgrid: false,
-    }
+    };
   }
 
-  return baseLayout
-})
+  return baseLayout;
+});
 
 const config = {
   responsive: true,
   displayModeBar: true,
-  modeBarButtonsToRemove: ['lasso2d', 'select2d'],
-}
+  modeBarButtonsToRemove: ["lasso2d", "select2d"],
+};
 
 function renderChart() {
-  if (!chartRef.value || props.bins.length === 0) return
-  Plotly.react(chartRef.value, plotData.value, layout.value, config)
+  if (!chartRef.value || props.bins.length === 0) return;
+  Plotly.react(chartRef.value, plotData.value, layout.value, config);
 }
 
 watch(
@@ -210,18 +216,18 @@ watch(
     () => props.statuses,
   ],
   renderChart,
-  { deep: true }
-)
+  { deep: true },
+);
 
 onMounted(() => {
-  renderChart()
-})
+  renderChart();
+});
 
 onUnmounted(() => {
   if (chartRef.value) {
-    Plotly.purge(chartRef.value)
+    Plotly.purge(chartRef.value);
   }
-})
+});
 </script>
 
 <template>
